@@ -1,0 +1,9 @@
+[submodule "gnss_localizer"]
+	path = gnss_localizer
+	url = https://github.com/Lamfurst/gnss_localizer
+[submodule "auto_reroute_py"]
+	path = auto_reroute_py
+	url = https://github.com/Lamfurst/auto_reroute_py
+[submodule "traffic_light_bridge"]
+	path = traffic_light_bridge
+	url = https://github.com/Lamfurst/traffic_light_bridge

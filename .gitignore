@@ -1,0 +1,23 @@
+# Ignore build and development files
+build/
+devel/
+
+# Ignore generated files
+*.pyc
+*.pyo
+*.log
+*.swp
+
+# Ignore ROS specific files and directories
+*.rosinstall
+*.rospack
+*.roscache
+*.ros
+
+# Ignore user-specific files
+*~
+.*.swp
+.DS_Store
+
+# Ignore .vscode folder
+.vscode/
