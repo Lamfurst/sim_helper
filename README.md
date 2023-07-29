@@ -4,6 +4,10 @@ This is a helper package for the carla-autoware simulation. It contains the foll
 - gnss_localizer
 - traffic_light_bridge
 
+
+https://github.com/Lamfurst/sim_helper/assets/66519297/ebe369fb-e65d-4d77-8089-86d0c855eea5
+
+
 ## Prerequisites
 
 Before using this package, ensure that you have the following prerequisites installed:
