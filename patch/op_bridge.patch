@@ -1,0 +1,98 @@
+diff --git a/op_bridge/op_bridge_ros2.py b/op_bridge/op_bridge_ros2.py
+index 0f15ee3..04b69fe 100644
+--- a/op_bridge/op_bridge_ros2.py
++++ b/op_bridge/op_bridge_ros2.py
+@@ -19,8 +19,6 @@ from leaderboard.autoagents.agent_wrapper import AgentWrapper, AgentError
+ from leaderboard.envs.sensor_interface import SensorReceivedNoData
+ from leaderboard.utils.result_writer import ResultOutputProvider
+ 
+-
+-
+ class BridgeHelpers(object):
+     @staticmethod
+     def get_agent_actor(world, role_name):
+@@ -72,9 +70,15 @@ class AgentLoop(object):
+                 self.running = False
+ 
+             spectator = CarlaDataProvider.get_world().get_spectator()
+-            ego_trans = self.ego_vehicle.get_transform()
+-            spectator.set_transform(carla.Transform(ego_trans.location + carla.Location(z=50),
+-                                                        carla.Rotation(pitch=-90)))
++            ego_trans = self.ego_vehicle.get_transform().location
++            ego_rot = self.ego_vehicle.get_transform().rotation
++            # spectator.set_transform(carla.Transform(ego_trans.location + carla.Location(z=50),
++            #                                             carla.Rotation(pitch=-90)))
++
++            offset_distance = -6  # backward distance
++            spectator_location = ego_trans + offset_distance * ego_rot.get_forward_vector() + carla.Location(z=2)
++            spectator_rotation = carla.Rotation(pitch=-15, yaw=ego_rot.yaw)
++            spectator.set_transform(carla.Transform(spectator_location, spectator_rotation))
+ 
+         if self.running:
+             CarlaDataProvider.get_world().tick()
+@@ -102,6 +106,19 @@ class WorldHandler(object):
+             settings = self._world.get_settings()
+             settings.fixed_delta_seconds = 1.0 / self._frame_rate
+             settings.synchronous_mode = True
++
++            weather = carla.WeatherParameters(
++                cloudiness=30,
++                precipitation=0, 
++                sun_altitude_angle=30,  
++                sun_azimuth_angle=180,  
++                fog_density=0,  
++                fog_distance=0,  
++                wetness=0,  
++                wind_intensity=0  
++            )
++            self._world.set_weather(weather)
++
+             self._world.apply_settings(settings)
+             CarlaDataProvider.set_world(self._world)
+             CarlaDataProvider.set_client(client)            
+@@ -130,14 +147,14 @@ class WorldHandler(object):
+ class AgentHandler(object):
+     def __init__(self, world_handler):
+         self._agent_role_name = os.environ['AGENT_ROLE_NAME']
+-        agent_path = os.environ['TEAM_AGENT']    
++        agent_path = os.environ['TEAM_AGENT'] # TEAM_AGENT refers to {LEADERBOARD_ROOT}/op_bridge/op_ros2_agent.py
+         module_name = os.path.basename(agent_path).split('.')[0]    
+         sys.path.insert(0, os.path.dirname(agent_path))    
+         module_agent = importlib.import_module(module_name)    
+-        agent_class_name = getattr(module_agent, 'get_entry_point')()
+-        self.agent_instance = getattr(module_agent, agent_class_name)('')
+-        self._agent_wrapper = AgentWrapper(self.agent_instance)
+-        self.ego_vehicle = BridgeHelpers.get_agent_actor(world_handler._world, self._agent_role_name)
++        agent_class_name = getattr(module_agent, 'get_entry_point')() # Get class name from agent module
++        self.agent_instance = getattr(module_agent, agent_class_name)('') # Initialize ros2agent instance here
++        self._agent_wrapper = AgentWrapper(self.agent_instance) # Initialize agent wrapper here
++        self.ego_vehicle = BridgeHelpers.get_agent_actor(world_handler._world, self._agent_role_name) # Get ego_vehicle from world
+         
+         if self.ego_vehicle is not None:
+             print("Ego Vehicle: " , self.ego_vehicle.attributes['role_name'])
+@@ -155,7 +172,7 @@ class AgentHandler(object):
+         try:    
+             self.agent_loop = AgentLoop()
+             self.agent_loop.agent = self._agent_wrapper
+-            self.agent_loop.ego_vehicle = self.ego_vehicle
++            self.agent_loop.ego_vehicle = self.ego_vehicle # Carla.actor
+             self.agent_loop.start_system_time = time.time()
+             self.agent_loop.start_game_time = GameTime.get_time()    
+             self.agent_loop.role_name = self._agent_role_name            
+@@ -190,11 +207,16 @@ def main():
+     world_handler = WorldHandler()
+     world_handler.load_world()      
+     
++    print("world loaded")
++
+     agent_handler = AgentHandler(world_handler)
++    print("agent_handler_loaded")
+ 
+     signal.signal(signal.SIGINT, AgentHandler._stop_loop)
++    print("Signal")
+ 
+     agent_handler.run_agent()
++    print("AGent")
+ 
+     print("Scenario Ended , Hero has fallen, Sayonara")  
+ 
