@@ -1,0 +1,15 @@
+diff --git a/autoware.repos b/autoware.repos
+index a082d90b..6bb8ea0d 100644
+--- a/autoware.repos
++++ b/autoware.repos
+@@ -25,6 +25,10 @@ repositories:
+     type: git
+     url: https://github.com/autowarefoundation/autoware.universe.git
+     version: galactic
++  universe/external/open_planner:
++    type: git
++    url: https://github.com/ZATiTech/open_planner.git
++    version: main
+   universe/external/tier4_ad_api_adaptor: # TODO(TIER IV): Improve design/code and transfer to AWF
+     type: git
+     url: https://github.com/tier4/tier4_ad_api_adaptor.git

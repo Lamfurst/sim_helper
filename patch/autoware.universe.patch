@@ -1,0 +1,257 @@
+diff --git a/launch/tier4_localization_launch/launch/pose_twist_fusion_filter/pose_twist_fusion_filter.launch.xml b/launch/tier4_localization_launch/launch/pose_twist_fusion_filter/pose_twist_fusion_filter.launch.xml
+index 3c109769e1..08b4d9aba3 100644
+--- a/launch/tier4_localization_launch/launch/pose_twist_fusion_filter/pose_twist_fusion_filter.launch.xml
++++ b/launch/tier4_localization_launch/launch/pose_twist_fusion_filter/pose_twist_fusion_filter.launch.xml
+@@ -6,7 +6,8 @@
+       <arg name="tf_rate" value="50.0"/>
+       <arg name="twist_smoothing_steps" value="2"/>
+       <arg name="input_initial_pose_name" value="/initialpose3d"/>
+-      <arg name="input_pose_with_cov_name" value="/localization/pose_estimator/pose_with_covariance"/>
++      <!-- <arg name="input_pose_with_cov_name" value="/localization/pose_estimator/pose_with_covariance"/> -->
++      <arg name="input_pose_with_cov_name" value="/localization/pose_estimator/gnss/pose_with_covariance"/>
+       <arg name="input_twist_with_cov_name" value="/localization/twist_estimator/twist_with_covariance"/>
+       <arg name="output_odom_name" value="kinematic_state"/>
+       <arg name="output_pose_name" value="pose"/>
+diff --git a/launch/tier4_localization_launch/launch/util/util.launch.xml b/launch/tier4_localization_launch/launch/util/util.launch.xml
+index 3070bc80bb..43cb0b92ea 100644
+--- a/launch/tier4_localization_launch/launch/util/util.launch.xml
++++ b/launch/tier4_localization_launch/launch/util/util.launch.xml
+@@ -17,6 +17,7 @@
+     <include file="$(find-pkg-share pose_initializer)/launch/pose_initializer.launch.xml">
+       <arg name="gnss_enabled" value="true"/>
+       <arg name="ndt_enabled" value="true"/>
++      <!-- <arg name="ndt_enabled" value="false"/> -->
+       <arg name="stop_check_enabled" value="true"/>
+     </include>
+   </group>
+diff --git a/localization/ndt_scan_matcher/include/ndt_scan_matcher/map_module.hpp b/localization/ndt_scan_matcher/include/ndt_scan_matcher/map_module.hpp
+index 871ff2760a..6ea3eee16e 100644
+--- a/localization/ndt_scan_matcher/include/ndt_scan_matcher/map_module.hpp
++++ b/localization/ndt_scan_matcher/include/ndt_scan_matcher/map_module.hpp
+@@ -44,6 +44,11 @@ private:
+   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr map_points_sub_;
+   std::shared_ptr<NormalDistributionsTransform> ndt_ptr_;
+   std::mutex * ndt_ptr_mutex_;
++
++  // Define local map_loader
++  void inplace_map_loader(
++    sensor_msgs::msg::PointCloud2::SharedPtr& map_points_msg_ptr,
++    const std::vector<std::string> & pcd_paths);
+ };
+ 
+ #endif  // NDT_SCAN_MATCHER__MAP_MODULE_HPP_
+diff --git a/localization/ndt_scan_matcher/src/map_module.cpp b/localization/ndt_scan_matcher/src/map_module.cpp
+index e036f8f81d..c2fa44a278 100644
+--- a/localization/ndt_scan_matcher/src/map_module.cpp
++++ b/localization/ndt_scan_matcher/src/map_module.cpp
+@@ -14,6 +14,23 @@
+ 
+ #include "ndt_scan_matcher/map_module.hpp"
+ 
++
++#include "rclcpp/rclcpp.hpp"
++
++// MapModule::MapModule(
++//   rclcpp::Node * node, std::mutex * ndt_ptr_mutex,
++//   std::shared_ptr<NormalDistributionsTransform> ndt_ptr,
++//   rclcpp::CallbackGroup::SharedPtr map_callback_group)
++// : ndt_ptr_(ndt_ptr), ndt_ptr_mutex_(ndt_ptr_mutex)
++// {
++//   auto map_sub_opt = rclcpp::SubscriptionOptions();
++//   map_sub_opt.callback_group = map_callback_group;
++
++//   map_points_sub_ = node->create_subscription<sensor_msgs::msg::PointCloud2>(
++//     "pointcloud_map", rclcpp::QoS{1}.transient_local(),
++//     std::bind(&MapModule::callback_map_points, this, std::placeholders::_1), map_sub_opt);
++// }
++
+ MapModule::MapModule(
+   rclcpp::Node * node, std::mutex * ndt_ptr_mutex,
+   std::shared_ptr<NormalDistributionsTransform> ndt_ptr,
+@@ -23,20 +40,61 @@ MapModule::MapModule(
+   auto map_sub_opt = rclcpp::SubscriptionOptions();
+   map_sub_opt.callback_group = map_callback_group;
+ 
+-  map_points_sub_ = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+-    "pointcloud_map", rclcpp::QoS{1}.transient_local(),
+-    std::bind(&MapModule::callback_map_points, this, std::placeholders::_1), map_sub_opt);
++  (void)node;
++  sensor_msgs::msg::PointCloud2::SharedPtr pcd_map_ptr(new sensor_msgs::msg::PointCloud2);
++  std::vector<std::string> map_path = {"/home/artemis/Workspace/autowarefoundation/map_data/Town01/pointcloud_map.pcd"};
++  MapModule::inplace_map_loader(pcd_map_ptr, map_path);
++  MapModule::callback_map_points(pcd_map_ptr);
+ }
+ 
++
++// void MapModule::callback_map_points(
++//   sensor_msgs::msg::PointCloud2::ConstSharedPtr map_points_msg_ptr)
++// {
++
++//   // while (true)
++//   // {
++//   //   RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map_points_callback is called!!!");
++//   // }
++//   RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map callback is called!!!");
++//   NormalDistributionsTransform new_ndt;
++//   new_ndt.setParams(ndt_ptr_->getParams());
++
++//   pcl::shared_ptr<pcl::PointCloud<PointTarget>> map_points_ptr(new pcl::PointCloud<PointTarget>);
++//   pcl::fromROSMsg(*map_points_msg_ptr, *map_points_ptr);
++//   new_ndt.setInputTarget(map_points_ptr);
++
++//   RCLCPP_INFO(rclcpp::get_logger("Debug"), "Input target is set!!!");
++
++//   // create Thread
++//   // detach
++//   auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
++//   new_ndt.align(*output_cloud);
++
++//   // swap
++//   ndt_ptr_mutex_->lock();
++//   *ndt_ptr_ = new_ndt;
++//   ndt_ptr_mutex_->unlock();
++// }
++
+ void MapModule::callback_map_points(
+   sensor_msgs::msg::PointCloud2::ConstSharedPtr map_points_msg_ptr)
+ {
++
++  // while (true)
++  // {
++  //   RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map_points_callback is called!!!");
++  // }
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map callback is called!!!");
+   NormalDistributionsTransform new_ndt;
+   new_ndt.setParams(ndt_ptr_->getParams());
+ 
+   pcl::shared_ptr<pcl::PointCloud<PointTarget>> map_points_ptr(new pcl::PointCloud<PointTarget>);
+   pcl::fromROSMsg(*map_points_msg_ptr, *map_points_ptr);
+   new_ndt.setInputTarget(map_points_ptr);
++
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Input target is set!!!");
++
+   // create Thread
+   // detach
+   auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
+@@ -47,3 +105,55 @@ void MapModule::callback_map_points(
+   *ndt_ptr_ = new_ndt;
+   ndt_ptr_mutex_->unlock();
+ }
++
++// void MapModule::inplace_map_loader(
++//   sensor_msgs::msg::PointCloud2::SharedPtr& whole_pcd_ptr,
++//   const std::vector<std::string> & pcd_paths)
++// {
++//   // sensor_msgs::msg::PointCloud2 whole_pcd;
++//   sensor_msgs::msg::PointCloud2 partial_pcd;
++
++//   RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map is loading!!!");
++//   for (int i = 0; i < static_cast<int>(pcd_paths.size()); ++i) {
++//     auto & path = pcd_paths[i];
++//     if (pcl::io::loadPCDFile(path, partial_pcd) == -1) {
++//       RCLCPP_ERROR_STREAM(rclcpp::get_logger("Debug"), "PCD load failed: " << path);
++//     }
++
++//     RCLCPP_INFO(rclcpp::get_logger("Debug"), "PCD Loaded!!!");
++
++//     if (whole_pcd_ptr->width == 0) {
++//       *whole_pcd_ptr = partial_pcd;
++//     } else {
++//       whole_pcd_ptr->width += partial_pcd.width;
++//       whole_pcd_ptr->row_step += partial_pcd.row_step;
++//       whole_pcd_ptr->data.insert(whole_pcd_ptr->data.end(), partial_pcd.data.begin(), partial_pcd.data.end());
++//     }
++//   }
++
++//   whole_pcd_ptr->header.frame_id = "map";
++
++//   RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map is loaded!!!");
++// }
++
++
++void MapModule::inplace_map_loader(
++  sensor_msgs::msg::PointCloud2::SharedPtr& whole_pcd_ptr,
++  const std::vector<std::string> & pcd_paths)
++{
++  // sensor_msgs::msg::PointCloud2 whole_pcd;
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map is loading!!!");
++  for (int i = 0; i < static_cast<int>(pcd_paths.size()); ++i) {
++    RCLCPP_INFO(rclcpp::get_logger("Debug"), "Loop entered!!!");
++    auto & path = pcd_paths[i];
++    if (pcl::io::loadPCDFile(path, *whole_pcd_ptr) == -1) {
++      RCLCPP_ERROR_STREAM(rclcpp::get_logger("Debug"), "PCD load failed: " << path);
++    }
++
++    RCLCPP_INFO(rclcpp::get_logger("Debug"), "PCD Loaded!!!");
++  }
++
++  whole_pcd_ptr->header.frame_id = "map";
++
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map is loaded!!!");
++}
+\ No newline at end of file
+diff --git a/localization/ndt_scan_matcher/src/ndt_scan_matcher_core.cpp b/localization/ndt_scan_matcher/src/ndt_scan_matcher_core.cpp
+index 4ae16e6999..952ae1a21f 100644
+--- a/localization/ndt_scan_matcher/src/ndt_scan_matcher_core.cpp
++++ b/localization/ndt_scan_matcher/src/ndt_scan_matcher_core.cpp
+@@ -211,7 +211,9 @@ NDTScanMatcher::NDTScanMatcher()
+   diagnostic_thread_.detach();
+ 
+   tf2_listener_module_ = std::make_shared<Tf2ListenerModule>(this);
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map is initializing");
+   map_module_ = std::make_unique<MapModule>(this, &ndt_ptr_mtx_, ndt_ptr_, main_callback_group);
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map initialized!!!");
+   pose_init_module_ = std::make_unique<PoseInitializationModule>(
+     this, &ndt_ptr_mtx_, ndt_ptr_, tf2_listener_module_, map_frame_, main_callback_group,
+     state_ptr_);
+diff --git a/localization/pose_initializer/src/pose_initializer/pose_initializer_core.cpp b/localization/pose_initializer/src/pose_initializer/pose_initializer_core.cpp
+index 7222ac2c4a..c3bf8b1b6d 100644
+--- a/localization/pose_initializer/src/pose_initializer/pose_initializer_core.cpp
++++ b/localization/pose_initializer/src/pose_initializer/pose_initializer_core.cpp
+@@ -23,6 +23,8 @@
+ #include <memory>
+ #include <vector>
+ 
++#include "rclcpp/rclcpp.hpp"
++
+ PoseInitializer::PoseInitializer() : Node("pose_initializer")
+ {
+   const auto node = component_interface_utils::NodeAdaptor(this);
+@@ -66,6 +68,9 @@ void PoseInitializer::on_initialize(
+   const Initialize::Service::Request::SharedPtr req,
+   const Initialize::Service::Response::SharedPtr res)
+ {
++    // std::cout << "Pose_initializer is called" << std::endl;
++    RCLCPP_INFO(rclcpp::get_logger("Debug_pose"), "Pose_initializer is called");
++
+   // NOTE: This function is not executed during initialization because mutually exclusive.
+   if (stop_check_ && !stop_check_->isVehicleStopped(stop_check_duration_)) {
+     throw ServiceException(
+@@ -76,9 +81,12 @@ void PoseInitializer::on_initialize(
+     if (localization_trigger_) {
+       localization_trigger_->deactivate();
+     }
++
++    RCLCPP_INFO(rclcpp::get_logger("Debug_pose"), "Getting GNSS pose");
+     auto pose = req->pose.empty() ? get_gnss_pose() : req->pose.front();
++    RCLCPP_INFO(rclcpp::get_logger("Debug_pose"), "Got GNSS pose");
+     if (ndt_) {
+-      pose = ndt_->align_pose(pose);
++      // pose = ndt_->align_pose(pose);
+     }
+     pose.pose.covariance = output_pose_covariance_;
+     pub_reset_->publish(pose);
+diff --git a/map/map_loader/src/pointcloud_map_loader/pointcloud_map_loader_module.cpp b/map/map_loader/src/pointcloud_map_loader/pointcloud_map_loader_module.cpp
+index e83b0df4d2..126495505b 100644
+--- a/map/map_loader/src/pointcloud_map_loader/pointcloud_map_loader_module.cpp
++++ b/map/map_loader/src/pointcloud_map_loader/pointcloud_map_loader_module.cpp
+@@ -38,7 +38,9 @@ PointcloudMapLoaderModule::PointcloudMapLoaderModule(
+   }
+ 
+   pcd.header.frame_id = "map";
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Sending the map!!!");
+   pub_pointcloud_map_->publish(pcd);
++  RCLCPP_INFO(rclcpp::get_logger("Debug"), "Map sended!!!");
+ }
+ 
+ sensor_msgs::msg::PointCloud2 PointcloudMapLoaderModule::loadPCDFiles(
