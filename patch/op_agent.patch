@@ -1,0 +1,18 @@
+diff --git a/start_ros2.sh b/start_ros2.sh
+index 7e2e5f2..863c3d6 100755
+--- a/start_ros2.sh
++++ b/start_ros2.sh
+@@ -12,8 +12,11 @@ echo $explore_mode
+ echo $route_topic
+ echo "-------------------------------"
+ 
+-source /home/hatem/hatem-repos/autoware-universe/autoware/install/setup.bash
++# source /home/hatem/hatem-repos/autoware-universe/autoware/install/setup.bash
++# source $HOME/docker_test/autoware/install/setup.bash
++source $HOME/autoware_carla/autoware/install/setup.bash
+ 
+ #ros2 launch ${TEAM_CODE_ROOT}/autoware_launch/universe.launch.xml map_path:=/home/hatem/Data/autoware_uni_sample_data/${map_name} vehicle_model:=sample_vehicle sensor_model:=sample_sensor_kit
+-ros2 launch /home/hatem/hatem-repos/autoware-universe/autoware/src/launcher/autoware_launch/autoware_launch/launch/autoware.launch.xml map_path:=/home/hatem/Data/autoware_uni_sample_data/${map_name} vehicle_model:=sample_vehicle sensor_model:=sample_sensor_kit
++# ros2 launch $HOME/docker_test/autoware/src/launcher/autoware_launch/autoware_launch/launch/autoware.launch.xml map_path:=$HOME/docker_test/autoware_map/${map_name} vehicle_model:=sample_vehicle sensor_model:=sample_sensor_kit
++ros2 launch $HOME/autoware_carla/autoware/src/launcher/autoware_launch/autoware_launch/launch/autoware.launch.xml map_path:=$HOME/autoware_carla/autoware_map/${map_name} vehicle_model:=sample_vehicle sensor_model:=sample_sensor_kit
+ #$SHELL

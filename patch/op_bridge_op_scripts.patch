@@ -1,0 +1,15 @@
+diff --git a/op_scripts/run_exploration_mode_ros2.sh b/op_scripts/run_exploration_mode_ros2.sh
+index 332c57d..55ab93b 100755
+--- a/op_scripts/run_exploration_mode_ros2.sh
++++ b/op_scripts/run_exploration_mode_ros2.sh
+@@ -5,7 +5,9 @@
+ #############################
+ 
+ # export SIMULATOR_LOCAL_HOST="localhost"
+-export SIMULATOR_LOCAL_HOST="192.168.11.5"
++# export SIMULATOR_LOCAL_HOST="192.168.11.5"
++# export SIMULATOR_LOCAL_HOST="localhost"
++export SIMULATOR_LOCAL_HOST="172.17.0.1"
+ export SIMULATOR_PORT="2000"
+ export TEAM_AGENT=${LEADERBOARD_ROOT}/op_bridge/op_ros2_agent.py
+ export PYTHONPATH="${CARLA_ROOT}/PythonAPI/carla/":"${SCENARIO_RUNNER_ROOT}":"${LEADERBOARD_ROOT}":${PYTHONPATH}
