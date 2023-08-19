@@ -72,9 +72,4 @@ RUN apt update \
     && apt install tmux \
     && rm -rf /var/lib/apt/lists/*
 
-FROM final_stage AS final_stage2
-RUN cd ${HOMEDIR}/sim_helper && git pull --recurse-submodules
-
-
-
 CMD ["/bin/bash"]
