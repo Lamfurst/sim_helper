@@ -66,4 +66,12 @@ RUN echo 'export CARLA_ROOT=${HOMEDIR}/carla_root/' >> ~/.bashrc && \
     echo 'export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents' >> ~/.bashrc && \
     echo 'export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg' >> ~/.bashrc
 
+# Build a new workspace and copy sim_helper folder into that workspace
+RUN source /opt/ros/galactic/setup.bash \
+    && cd ${HOMEDIR} \
+    && mkdir -p ${HOMEDIR}/sim_helper_ws/src \
+    && cp -r ${HOMEDIR}/sim_helper ${HOMEDIR}/sim_helper_ws/src \
+    && cd ${HOMEDIR}/sim_helper_ws \
+    && colcon build --symlink-install
+
 CMD ["/bin/bash"]
