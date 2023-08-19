@@ -1,5 +1,5 @@
 diff --git a/op_scripts/run_exploration_mode_ros2.sh b/op_scripts/run_exploration_mode_ros2.sh
-index 332c57d..55ab93b 100755
+index 332c57d..bb51c5a 100755
 --- a/op_scripts/run_exploration_mode_ros2.sh
 +++ b/op_scripts/run_exploration_mode_ros2.sh
 @@ -5,7 +5,9 @@
@@ -13,3 +13,13 @@ index 332c57d..55ab93b 100755
  export SIMULATOR_PORT="2000"
  export TEAM_AGENT=${LEADERBOARD_ROOT}/op_bridge/op_ros2_agent.py
  export PYTHONPATH="${CARLA_ROOT}/PythonAPI/carla/":"${SCENARIO_RUNNER_ROOT}":"${LEADERBOARD_ROOT}":${PYTHONPATH}
+@@ -26,7 +28,8 @@ export FREE_MAP_NAME="Town01"
+ # "x,y,z,roll,pitch,yaw"
+ # Empty string means random starting position
+ #export FREE_AGENT_POSE="175.4,195.14,0,0,0,180" 
+-export FREE_AGENT_POSE=""
++# export FREE_AGENT_POSE=""
++export FREE_AGENT_POSE="10, 2, 0, 0, 0, 0"
+ 
+ gnome-terminal -- bash -c roscore
+ python3 ${LEADERBOARD_ROOT}/op_bridge/op_bridge_ros2.py
