@@ -91,6 +91,7 @@ This package provides launch script with the ability to launch different compone
 2. Run the script by executing the following command in the new window:
 
     ```bash
+    cd sim_helper_ws/src/sim_helper/
     ./launch_script.sh [OPTIONS]
     ```
 
