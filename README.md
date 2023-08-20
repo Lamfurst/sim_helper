@@ -129,6 +129,11 @@ If an option is not specified, the corresponding component will not be launched.
     cd folder/carla/is/installed
     python3 /home/artemis/Workspace/carla-0.9.13/PythonAPI/examples/generate_traffic.py --asynch --safe -n 50 -w 100
     ```
+- If you want the view point to follow the vehicle as shown in the demo video, you can run the following command in the container
+    ```bash
+    cd $HOMEDIR/op_carla/op_bridge/op_bridge/op_bridge/
+    git apply ${HOMEDIR}/sim_helper_ws/src/sim_helper/patch/op_bridge.patch
+    ```
 
 ## License
 This repository is licensed under the MIT license. See [LICENSE](LICENSE) for details.
