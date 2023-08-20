@@ -135,6 +135,10 @@ If an option is not specified, the corresponding component will not be launched.
     git apply ${HOMEDIR}/sim_helper_ws/src/sim_helper/patch/op_bridge.patch
     ```
 - Here is a `tmux` [cheatsheet](https://tmuxcheatsheet.com/) if needed.
+- If you want to set the initial spawn position of vehicle change the following line in the file `$HOMEDIR/op_carla/op_bridge/op_scripts/run_exploration_mode_ros2.sh` to the desired position:
+    ```bash
+    export FREE_AGENT_POSE="10, 2, 0, 0, 0, 0"
+    ```
 
 ## License
 This repository is licensed under the MIT license. See [LICENSE](LICENSE) for details.
