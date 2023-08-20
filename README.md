@@ -134,6 +134,7 @@ If an option is not specified, the corresponding component will not be launched.
     cd $HOMEDIR/op_carla/op_bridge/op_bridge/op_bridge/
     git apply ${HOMEDIR}/sim_helper_ws/src/sim_helper/patch/op_bridge.patch
     ```
+- Here is a `tmux` [cheatsheet](https://tmuxcheatsheet.com/) if needed.
 
 ## License
 This repository is licensed under the MIT license. See [LICENSE](LICENSE) for details.
