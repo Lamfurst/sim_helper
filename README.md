@@ -26,9 +26,9 @@ This repository combines the power of Autoware and Carla simulation to create a 
 
 Before using this package, ensure that you have the following prerequisites installed:
 
-- [Docker Engine] (https://docs.docker.com/engine/install/ubuntu/)
-- [NVIDIA Container Toolkit] (https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
-- [rocker] (https://github.com/osrf/rocker/#installation)
+- [Docker Engine](https://docs.docker.com/engine/install/ubuntu/)
+- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+- [rocker](https://github.com/osrf/rocker/#installation)
 
 ## Installation
 1. Clone this repository
