@@ -28,7 +28,7 @@ This repository combines the power of Autoware and Carla simulation to create a 
 Before using this package, ensure that you have the following prerequisites installed:
 
 - [Docker Engine](https://docs.docker.com/engine/install/ubuntu/)
-- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#docker) (You only need to follow the steps under [Prerequisite](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#docker) and [Docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#docker) section. Section Container Device Interface (CDI) Support, podman, containerd are not for docker.
+- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#docker) (You only need to follow the steps under [Prerequisite](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#docker) and [Docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#docker) section. Section Container Device Interface (CDI) Support, podman, containerd are not for docker).
 - [rocker](https://github.com/osrf/rocker/#installation)
 
 ## Installation
