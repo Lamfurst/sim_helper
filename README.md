@@ -144,4 +144,4 @@ If an option is not specified, the corresponding component will not be launched.
 This repository is licensed under the MIT license. See [LICENSE](LICENSE) for details.
 
 ## Acknowledgement
-This repository is based on the work of Dr.Hatem's open_planner package. See [open_planner](https://github.com/ZATiTech/open_planner)
+This repository is based on the work of Dr.Hatem's open_planner package. See [open_planner](https://github.com/ZATiTech/open_planner) for details.
