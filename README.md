@@ -13,8 +13,9 @@ This repository provides Dockerfile and helper packages for integrating Autoware
 
 
 
+https://github.com/Lamfurst/sim_helper/assets/66519297/5de06354-6e1d-47bf-9496-53c3fc2b7f0d
 
-https://github.com/Lamfurst/sim_helper/assets/66519297/ebe369fb-e65d-4d77-8089-86d0c855eea5
+
 
 ## Introduction
 This repository combines the power of Autoware and Carla simulation to create a comprehensive environment for developing and testing autonomous driving algorithms. It includes Dockerfile setup for easy deployment and three helper packages to enhance simulation capabilities. These packages are:
