@@ -45,11 +45,11 @@ Before using this package, ensure that you have the following prerequisites inst
     ```
 3. Download Release Version **0.9.13** of Carla from [here](https://github.com/carla-simulator/carla/releases) and extract it.
     
-4. Put the map folder under your $HOME
+4. Copy the map folder to your $HOME
     
     ```bash
-    cd $HOME
-    mkdir autoware_map
+    cd sim_helper/
+    copy -r autoware_map $HOME/
     ```
 ## Usage of Autoware-CARLA Simulation Docker
 1. Run the CarlaUE4.sh script with the following parameters:
