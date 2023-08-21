@@ -49,7 +49,7 @@ Before using this package, ensure that you have the following prerequisites inst
     
     ```bash
     cd sim_helper/
-    copy -r autoware_map $HOME/
+    cp -r autoware_map $HOME/
     ```
 ## Usage of Autoware-CARLA Simulation Docker
 1. Run the CarlaUE4.sh script with the following parameters:
